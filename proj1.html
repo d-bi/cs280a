@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		CS 280A Fa 24 Projects - Dasheng Bi
+	</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script src="script.js" async></script>
+	<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body>
+	<div class="navcont">
+		<ul class="nav">
+			<li class="nav"><a href="index.html">Index</a></li>
+			<li class="nav"><a class="curr_nav">Project 1</a></li>
+		</ul>
+	</div>
+	<div class="card">
+		<h1>Images of the Russian Empire: Colorizing the Prokudin-Gorskii photo collection</h1>
+		<div class="subcard">
+			<center>
+				<p><i>"... And three begot the ten thousand things."</i></p>
+				<p><span>&#8212;</span>Lao Tzu, <i>Tao Te Ching</i>	(Feng/English trans.)</p>
+			</center>
+		</div>
+		<div class="subcard">
+			<h2>Introduction</h2>
+			<p>
+				The <a class="texta" href="https://www.loc.gov/collections/prokudin-gorskii/">Prokudin-Gorskii</a> photo collection is a series of glass plate exposures under red/green/blue filters, digitized by the Library of Congress <b>(Fig. 1a)</b>.
+				Since the exposures were not taken under perfectly identical conditions, a simple overlay of the three channels produces colorization artifacts <b>(Fig. 1b)</b>.
+				Here, we attempt to produce faithful colorizations of these photographs by combining the three exposures with automatic x-y alignment and RGB channel assignment <b>(Fig. 1c)</b>.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 1a. Example digitized glass plate.</th>
+						<th>Fig. 1b. Simple overlay of the three channels.</th>
+						<th>Fig. 1c. Automatic composite of the three channels.</th>
+						<tr>
+							<td>
+								<img src="media/proj1/fig1a.jpg" alt="Glass plate negatives" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig1b.jpg" alt="Simple overlay" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig1c.jpg" alt="Automatic composite" style="height: 20em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Single-Scale Grid Search</h2>
+			<p>
+				For low-resolution images such as <code>cathedral.jpg</code>, <code>monastery.jpg</code>, and <code>tobolsk.jpg</code> (where the edge length is \(\sim 300\) px), we found that a simple grid search over displacements \((dx, dy) \in [-15,15]\times [-15,15]\) px, optimizing for
+				\[\min_{(dx, dy)} \mathcal{L}(\text{displace}(p_1, dx, dy), p_2),\]
+				where \(\mathcal{L}(p_1, p_2)\) is the \(\ell_2\) norm between the center \(90\%\) region of images \(p_1, p_2\) and \(\text{displace}(p_1, dx, dy)\) is a circular shift of image \(p_1\) in the 2D-plane by \((dx, dy)\) px, between both the green/blue and red/blue plates sufficed to find a reasonable alignment <b>(Fig. 2a-c)</b>.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Legend</th>
+						<th>Fig. 2a. <code>cathedral.jpg</code></th>
+						<th>Fig. 2b. <code>monastery.jpg</code></th>
+						<th>Fig. 2c. <code>tobolsk.jpg</code></th>
+						<tr>
+							<td>Baseline overlay</td>
+							<td>
+								<img src="media/proj1/fig2a_baseline.jpg" alt="cathedral.jpg baseline" style="height: 15em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig2b_baseline.jpg" alt="monastery.jpg baseline" style="height: 15em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig2c_baseline.jpg" alt="tobolsk.jpg baseline" style="height: 15em;">
+							</td>
+						</tr>
+						<tr>
+							<td>Single-scale aligned composite</td>
+							<td>
+								<img src="media/proj1/fig2a_aligned.jpg" alt="cathedral.jpg aligned" style="height: 15em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig2b_aligned.jpg" alt="monastery.jpg aligned" style="height: 15em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig2c_aligned.jpg" alt="tobolsk.jpg aligned" style="height: 15em;">
+							</td>
+						</tr>
+						<tr>
+							<td>Displacements</td>
+							<td>G \((2, 5)\), R \((3, 12)\)</td>
+							<td>G \((2, 3)\), R \((2, 3)\)</td>
+							<td>G \((2, 3)\), R \((3, 6)\)</td>
+						</tr>
+						<tr>
+							<td>Runtime</td>
+							<td>\(306\) ms</td>
+							<td>\(250\) ms</td>
+							<td>\(219\) ms</td>
+						</tr>
+					</table>
+				</center> 
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Multiscale Pyramid Search</h2>
+			<p>
+				For high-resolution images such as <code>emir.tif</code> and others (where the edge length is \(> 3000\) px), we implemented an iterative image pyramid search, where the top level image is downscaled to a maximum edge length of \(256\) px, and each successive level differs in edge length by a factor of \(2\).
+				At the top level, we performed a grid search over displacements \((dx, dy) \in [-15,15]\times [-15,15]\) px (as in the single-scale case), and at each successive level, we restricted the search region to \(\pm 1\) px around the scaled estimate from the previous level. To balance the effects of local and global structural differences on the alignment, at each level we optimized for
+				\[\min_{(dx, dy)} \mathcal{L_e}(\text{displace}(p_1, dx, dy), p_2)+\lambda \mathcal{L_c}(\text{displace}(p_1, dx, dy), p_2),\]
+				where \(\mathcal{L_e}(p_1, p_2)\) is the mean \(\ell_2\) norm between images \(p_1, p_2\) over the center \(90\%\) region, \(\mathcal{L_c}(p_1,p_2)\) is the normalized cross-correlation between images \(p_1, p_2\), and \(\text{displace}(p_1, dx, dy)\) is a circular shift of image \(p_1\) in the 2D-plane by \((dx, dy)\) px. We found that \(\lambda = -5\times 10^{-5}\) sufficed to produce empirically well-aligned images <b>(Fig. 3a-k)</b>.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Legend</th>
+						<th>Fig. 3a. <code>emir.tif</code></th>
+						<th>Fig. 3b. <code>church.tif</code></th>
+						<th>Fig. 3c. <code>harvesters.tif</code></th>
+						<th>Fig. 3d. <code>icon.tif</code></th>
+						<th>Fig. 3e. <code>lady.tif</code></th>
+						<th>Fig. 3f. <code>melons.tif</code></th>
+						<th>Fig. 3g. <code>onion_church.tif</code></th>
+						<th>Fig. 3h. <code>sculpture.tif</code></th>
+						<th>Fig. 3i. <code>self_portrait.tif</code></th>
+						<th>Fig. 3j. <code>three_generations.tif</code></th>
+						<th>Fig. 3k. <code>train.tif</code></th>
+						<tr>
+							<td>Baseline overlay</td>
+							<td>
+								<img src="media/proj1/fig3a_baseline.jpg" alt="emir.tif baseline" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3b_baseline.jpg" alt="church.tif baseline" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3c_baseline.jpg" alt="harvesters.tif baseline" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3d_baseline.jpg" alt="icon.tif baseline" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3e_baseline.jpg" alt="lady.tif baseline" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3f_baseline.jpg" alt="melons.tif baseline" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3g_baseline.jpg" alt="onion_church.tif baseline" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3h_baseline.jpg" alt="sculpture.tif baseline" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3i_baseline.jpg" alt="self_portrait.tif baseline" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3j_baseline.jpg" alt="three_generations.tif baseline" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3k_baseline.jpg" alt="train.tif baseline" style="height: 25em;">
+							</td>
+						</tr>
+						<tr>
+							<td>Multiscale aligned composite</td>
+							<td>
+								<img src="media/proj1/fig3a_aligned.jpg" alt="emir.tif aligned" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3b_aligned.jpg" alt="church.tif aligned" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3c_aligned.jpg" alt="harvesters.tif aligned" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3d_aligned.jpg" alt="icon.tif aligned" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3e_aligned.jpg" alt="lady.tif aligned" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3f_aligned.jpg" alt="melons.tif aligned" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3g_aligned.jpg" alt="onion_church.tif aligned" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3h_aligned.jpg" alt="sculpture.tif aligned" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3i_aligned.jpg" alt="self_portrait.tif aligned" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3j_aligned.jpg" alt="three_generations.tif aligned" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3k_aligned.jpg" alt="train.tif aligned" style="height: 25em;">
+							</td>
+						</tr>
+						<tr>
+							<td>Displacements</td>
+							<td>G \((23, 48)\), R \((39, 103)\)</td>
+							<td>G \((3, 24)\), R \((5, 55)\)</td>
+							<td>G \((15, 60)\), R \((11, 123)\)</td>
+							<td>G \((17, 41)\), R \((22, 89)\)</td>
+							<td>G \((3, 55)\), R \((5, 113)\)</td>
+							<td>G \((7, 82)\), R \((10, 177)\)</td>
+							<td>G \((25, 52)\), R \((36, 108)\)</td>
+							<td>G \((11, 33)\), R \((26, 140)\)</td>
+							<td>G \((27, 78)\), R \((31, 173)\)</td>
+							<td>G \((11, 54)\), R \((9, 111)\)</td>
+							<td>G \((3, 42)\), R \((31, 87)\)</td>
+						</tr>
+						<tr>
+							<td>Runtime</td>
+							<td>\(6179\) ms</td>
+							<td>\(5763\) ms</td>
+							<td>\(6043\) ms</td>
+							<td>\(6262\) ms</td>
+							<td>\(6332\) ms</td>
+							<td>\(6242\) ms</td>
+							<td>\(6317\) ms</td>
+							<td>\(6406\) ms</td>
+							<td>\(6678\) ms</td>
+							<td>\(5983\) ms</td>
+							<td>\(6321\) ms</td>
+						</tr>
+					</table>
+				</center> 
+			</p>
+		</div>
+	</div>
+</body>
+
+<footer>
+	<p>Dasheng Bi, <span id="currentYear"></span></p>
+</footer>
+</html>

@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Oxygen:wght@300&display=swap');
+body {
+	padding: 0;
+	margin: 0;
+	font-family: 'Oxygen', sans-serif;
+	font-size: 100%;
+	text-align: justify;
+    text-size-adjust: 100%; 
+    -ms-text-size-adjust: 100%; 
+    -moz-text-size-adjust: 100%; 
+    -webkit-text-size-adjust: 100%;
+}
+footer {
+	background-color: #373737;
+	color: #FFFFFF;
+	font-family: 'Oxygen', sans-serif;
+	padding: 0.5em 2em;
+	margin: 0;
+	text-align: right;
+}
+.nav > a {
+	font-size: 1.2em;
+	text-decoration: none;
+	text-align: center;
+	color: #EEEEEE;
+}
+.nav > a.curr_nav {
+	font-size: 1.3em;
+	font-weight: bold;
+	color: #FFFFFF;
+}
+.nav > a:hover {
+	font-weight: bold;
+}
+.nav > a:visited {
+	color: #EEEEEE;
+}
+div.navcont {
+	margin: 0;
+	padding: 0.1em 0.1em 0.1em 0.1em;
+	background-color: #686868;
+	color: #FFFFFF;
+}
+ul.nav {
+	list-style-type: none;
+	text-align: center;
+}
+li.nav {
+	display: inline;
+	padding: 0 10%;
+}
+div.card {
+	margin: 1em 1em;
+	padding: 0.5em 1.5em 0.5em 1.5em;
+	background-color: #E6E6E6;
+	border-radius: 1em;
+}
+div.subcard {
+	padding: 0.5em 1em 0.5em 1em;
+	margin: 0.5em 0em;
+	background-color: #D5D5D5;
+	border-radius: 0.5em;
+}
+div.indent {
+	padding: 0em 2em;
+}
+.lralign > span {
+	float: right;
+	font-size: inherit;
+}
+.light {
+	font-weight: normal;
+	padding: 0;
+	margin: 0;
+}
+.expand {
+	border: none;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: inherit;
+	background-color: transparent;
+}
+.expand:hover {
+	font-weight: bold;
+}
+.expand:after {
+	content: " [+]";
+}
+.active:after {
+	content: " [-]";
+}
+.expandcontent {
+	max-height: 0;
+  	overflow: hidden;
+	transition: max-height 0.5s ease-out;
+	margin: 0.5em 0;
+}
+a.texta {
+	color: #373737;
+}
+a.texta:visited {
+	color: #373737;
+}
+a.b {
+	font-weight: bold;
+}
+.emph {
+	font-weight: bold;
+}
+.red {
+	color: #BB0000;
+}
+.underline {
+	text-decoration: underline;
+}
+.left-70 {
+	padding-right: 30%;
+}
+table {
+	display: block;
+	max-width: -moz-fit-content;
+	max-width: fit-content;
+	margin: 0 auto;
+	overflow-x: auto;
+	white-space: nowrap;
+}
+.borderedtable {
+	border-bottom: 0.1em solid #7E7E7E;
+	border-collapse: collapse;
+}
+.borderedtable td.links {
+	width: 20%;
+}
+.borderedtable td {
+	border-bottom: 0.1em solid #7E7E7E;
+	border-collapse: collapse;
+	padding: 0.5em 1em;
+	text-align: center;
+}
+.borderedtable th {
+	border: 0.1em solid #7E7E7E;
+	background-color: #7E7E7E;
+	color: #EAEAEA;
+	border-collapse: collapse;
+	padding: 0.5em 1em;
+	font-weight: normal;
+	text-align: center;
+}
