@@ -231,6 +231,144 @@
 				</center> 
 			</p>
 		</div>
+		<div class="subcard">
+			<h2>Bells <span>&#x1F514</span> and Whistles <span>&#x1F973;</span></h2>
+			<h3>More realistic colors</h3>
+			<p>
+				Since the digital R/G/B channels do not perfectly match the filters that Prokudin-Gorskii used, the composite images contain tints. To correct for this, we used linear combinations of the aligned plates for each of the three digital color channels.
+				As we did not have access to the exact spectra of Prokudin-Gorskii's filters, we tested several combinations and found that \((R',G',B')=(0.9R+0.1G, 0.8G+0.1R+0.1B, 0.9B+0.1G)\) produced visually realistic colors <b>(Fig. 4a-e)</b>.
+				We note that color correction is a subjective problem, and the choice of channel compositions may be further refined with larger-scale human psychophysics.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Legend</th>
+						<th>Fig. 4a. <code>emir.tif</code></th>
+						<th>Fig. 4b. <code>lady.tif</code></th>
+						<th>Fig. 4c. <code>melons.tif</code></th>
+						<th>Fig. 4d. <code>self_portrait.tif</code></th>
+						<th>Fig. 4e. <code>three_generations.tif</code></th>
+						<tr>
+						<tr>
+							<td>Multiscale aligned composite (Fig. 3)</td>
+							<td>
+								<img src="media/proj1/fig3a_aligned.jpg" alt="emir.tif aligned" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3e_aligned.jpg" alt="lady.tif aligned" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3f_aligned.jpg" alt="melons.tif aligned" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3i_aligned.jpg" alt="self_portrait.tif aligned" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig3j_aligned.jpg" alt="three_generations.tif aligned" style="height: 20em;">
+							</td>
+						</tr>
+						<tr>
+							<td>Remapped color channels</td>
+							<td>
+								<img src="media/proj1/fig4a_color_corrected.jpg" alt="emir.tif color corrected" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig4b_color_corrected.jpg" alt="lady.tif color corrected" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig4c_color_corrected.jpg" alt="melons.tif color corrected" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig4d_color_corrected.jpg" alt="self_portrait.tif color corrected" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig4e_color_corrected.jpg" alt="three_generations.tif color corrected" style="height: 20em;">
+							</td>
+						</tr>
+					</table>
+				</center> 
+			</p>
+			<br>
+			<h3>Automatic cropping</h3>
+			<p>
+				We attempt to remove regions of the images that contain color block artifacts caused by non-uniform placement of the exposure region on the glass plates. We use a combination of a variational metric (for colored blocks)
+				\[(R-G)^2+(G-B)^2+(R-B)^2\]
+				and an intensity metric (for black blocks)
+				\[\frac{1}{R+G+B+\epsilon}\]
+				applied pixel-wise, and crop at left/right/top/bottom lines where the number of pixels exceeding a threshold for either metric is sufficiently high (indicative of a line artifact). Results are shown in <b>Fig. 5a-e</b>. Note that this simple method has some failure modes, particularly when the artifact is not high contrast enough.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Legend</th>
+						<th>Fig. 5a. <code>emir.tif</code></th>
+						<th>Fig. 5b. <code>lady.tif</code></th>
+						<th>Fig. 5c. <code>melons.tif</code></th>
+						<th>Fig. 5d. <code>self_portrait.tif</code></th>
+						<th>Fig. 5e. <code>three_generations.tif</code></th>
+						<tr>
+						<tr>
+							<td>Before cropping</td>
+							<td>
+								<img src="media/proj1/fig4a_color_corrected.jpg" alt="emir.tif color corrected" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig4b_color_corrected.jpg" alt="lady.tif color corrected" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig4c_color_corrected.jpg" alt="melons.tif color corrected" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig4d_color_corrected.jpg" alt="self_portrait.tif color corrected" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig4e_color_corrected.jpg" alt="three_generations.tif color corrected" style="height: 20em;">
+							</td>
+						</tr>
+						<tr>
+							<td>After cropping</td>
+							<td>
+								<img src="media/proj1/fig5a.jpg" alt="emir.tif automatically cropped" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig5b.jpg" alt="lady.tif automatically cropped" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig5c.jpg" alt="melons.tif automatically cropped" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig5d.jpg" alt="self_portrait.tif automatically cropped" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig5e.jpg" alt="three_generations.tif automatically cropped" style="height: 20em;">
+							</td>
+						</tr>
+					</table>
+				</center> 
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Comment: Dynamics as an artifact or feature?</h2>
+			<p>
+				Since the plates were separately exposed, the information content in the three plates are not identical. This can be seen most clearly in non-static scenes, such as waves of water <b>(Fig. 6a)</b> or sunlight patterns <b>(Fig. 6b)</b>
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 6a. Waves</th>
+						<th>Fig. 6b. Sunlight</th>
+						<tr>
+							<td>
+								<img src="media/proj1/fig6a.jpg" alt="waves" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj1/fig6b.jpg" alt="sunlight" style="height: 25em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+				<br>
+				Clearly, these dynamic structures cannot be perfectly modeled by x-y translational alignment of the plates (although they could perhaps be interpolated between using generative models). However, whether these structures are artifacts pointing to inferior imaging technology, or features indicative of the passage of time, is a matter of personal taste.
+				Personally, I find these structures to be a quintessential feature of the Prokudin-Gorskii collection--indeed, they add a sparsely sampled temporal dimension to the pieces. <b>In this sense, these are not just the first color photographs; they are the first live photos.</b>
+			</p>
+		</div>
 	</div>
 </body>
 
