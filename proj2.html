@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		CS 280A Fa 24 Projects - Dasheng Bi
+	</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script src="script.js" async></script>
+	<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body>
+	<div class="navcont">
+		<ul class="nav">
+			<li class="nav"><a href="index.html">Index</a></li>
+			<li class="nav"><a href="proj1.html">Project 1</a></li>
+			<li class="nav"><a class="curr_nav">Project 2</a></li>
+		</ul>
+	</div>
+	<center>
+		<h1>Fun with Filters and Frequencies!</h1>
+	</center>
+	<div class="card">
+		<h2>Part 1: Fun with Filters</h2>
+		<div class="subcard">
+			<center>
+				<p><i>"Know the white, but keep the black"</i></p>
+				<p><span>&#8212;</span>Lao Tzu, <i>Tao Te Ching</i>	(Feng/English trans.)</p>
+			</center>
+		</div>
+		<div class="subcard">
+			<h3>Part 1.1: Finite Difference Operator</h3>
+			<p>
+				A simple way to find edges in an image (such as, <i>e.g.</i>, the cameraman image in <b>Fig. 1a</b>) is to threshold the magnitude of the gradient.
+				We can calculate the (discrete) gradient magnitude by \(\|\nabla I\|=\sqrt{\left(\frac{\partial I}{\partial x}\right)^2+\left(\frac{\partial I}{\partial y}\right)^2}\),
+				where \(\frac{\partial I}{\partial x}=D_x*I\) is the discrete \(x\)-gradient <b>(Fig. 1b)</b>, computed by convolving the image with the horizontal finite difference kernel, and 
+				\(\frac{\partial I}{\partial y}=D_y*I\) is the discrete \(y\)-gradient <b>(Fig. 1c)</b>, computed by convolving the image with the vertical finite difference kernel.
+				Using the formula above, we can find the gradient magnitude of the cameraman image <b>(Fig. 1d)</b>,
+				and by thresholding the gradient magnitude at an appropriate value (we found that \(0.32\) worked well empirically), we can obtain a simple edge image <b>(Fig. 1e)</b>.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 1a. <code>cameraman.png</code>.</th>
+						<th>Fig. 1b. \(D_x*I\).</th>
+						<th>Fig. 1c. \(D_y*I\).</th>
+						<th>Fig. 1d. \(\|\nabla I\|\).</th>
+						<th>Fig. 1e. \(\|\nabla I\|\ge 0.32\).</th>
+						<tr>
+							<td>
+								<img src="media/proj2/fig1a.jpg" alt="cameraman.png" style="height: 12em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig1b.jpg" alt="D_x*I" style="height: 12em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig1c.jpg" alt="D_y*I" style="height: 12em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig1d.jpg" alt="nabla I" style="height: 12em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig1e.jpg" alt="nabla I thresholded" style="height: 12em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+			</div>
+			<div class="subcard">
+			<h3>Part 1.2: Derivative of Gaussian (DoG) Filter</h3>
+			<p>
+				By smoothing the image (<i>e.g.</i>, convolving with a Gaussian kernel \(G\)) before calculating the gradients <b>(Fig. 2a)</b> (here, we used \(\sigma=2\)), we can reduce the noise present in the gradients and edge image <b>(Fig. 2b-e)</b>.
+				We note that the resulting edges are thicker and smoother, and there are fewer instances of spurious (false positive) edges in the thresholded image.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 2a. \(G*I\).</th>
+						<th>Fig. 2b. \(D_x*(G*I)\).</th>
+						<th>Fig. 2c. \(D_y*(G*I)\).</th>
+						<th>Fig. 2d. \(\|\nabla (G*I)\|\).</th>
+						<th>Fig. 2e. \(\|\nabla (G*I)\|\ge 0.06\).</th>
+						<tr>
+							<td>
+								<img src="media/proj2/fig2a.jpg" alt="G*I" style="height: 12em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig2b.jpg" alt="D_x*(G*I)" style="height: 12em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig2c.jpg" alt="D_y*(G*I)" style="height: 12em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig2d.jpg" alt="nabla (G*I)" style="height: 12em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig2e.jpg" alt="nabla (G*I) thresholded" style="height: 12em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+				<br>
+				Alternatively, we can compute the finite differences of the Gaussian kernel (obtaining the <i>DoG kernels</i>) before convolving with the image <b>(Fig. 3a)</b>. The final results are identical since convolution is an associative operation.
+				<br>
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 3a. \(D_x*G, D_y*G\).</th>
+						<th>Fig. 3b. \((D_x*G)*I\).</th>
+						<th>Fig. 3c. \((D_y*G)*I\).</th>
+						<th>Fig. 3d. \(\|\nabla (G*I)\|\).</th>
+						<th>Fig. 3e. \(\|\nabla (G*I)\|\ge 0.06\).</th>
+						<tr>
+							<td>
+								<img src="media/proj2/fig3a_1.jpg" alt="D_x*G" style="height: 6em;">
+								<img src="media/proj2/fig3a_2.jpg" alt="D_y*G" style="height: 6em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig3b.jpg" alt="(D_x*G)*I" style="height: 12em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig3c.jpg" alt="(D_y*G)*I" style="height: 12em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig3d.jpg" alt="nabla (G*I)" style="height: 12em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig3e.jpg" alt="nabla (G*I) thresholded" style="height: 12em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+			<i>Note: all computed images are \([0,1]\)-normalized before exporting, and \(10\) px are cropped from each side to remove edge artifacts present in the original input image.</i>
+		</div>
+	</div>
+	<div class="card">
+		<h2>Part 2: Fun with Frequencies!</h2>
+		<div class="subcard">
+			<center>
+				<p><i>"... Far, near, high, low, no two parts alike."</i></p>
+				<p><span>&#8212;</span>Su Dongpo, <i>Written on the Wall of West Forest Temple</i>	(Weston trans.)</p>
+			</center>
+		</div>
+		<div class="subcard">
+			<h3>Part 2.1: Image "Sharpening"</h3>
+			<p>
+				We can make an image appear sharper to the eye by adding more high frequency components. To do this, we derive the <i>unsharp mask filter</i> \(U_{\alpha,\sigma}:=\delta_{0,0}+\alpha(\delta_{0,0}-G_{0,0,\sigma})\), where \(\delta_{0,0}\) is the unit impulse filter and \(G_{0,0,\sigma}\) is a Gaussian filter.
+				By convolving a given image with the unsharp mask filter, we can make it appear progressively sharper <b>(Fig. 4a-b)</b>.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Legend</th>
+						<th>\(\alpha=0\) (Original)</th>
+						<th>\(\alpha=1\)</th>
+						<th>\(\alpha=2\)</th>
+						<th>\(\alpha=4\)</th>
+						<th>\(\alpha=8\)</th>
+						<tr>
+							<td>
+								Fig. 4a. <code>taj.jpg</code>.
+							</td>
+							<td>
+								<img src="media/proj2/fig4a_1.jpg" alt="taj.jpg alpha=0" style="height: 12em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig4a_2.jpg" alt="taj.jpg alpha=1" style="height: 12em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig4a_3.jpg" alt="taj.jpg alpha=2" style="height: 12em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig4a_4.jpg" alt="taj.jpg alpha=4" style="height: 12em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig4a_5.jpg" alt="taj.jpg alpha=8" style="height: 12em;">
+							</td>
+						</tr>
+						<tr>
+							<td>Fig. 4b. <code>bridge</code>.</td>
+							<td>
+								<img src="media/proj2/fig4b_1.jpg" alt="bay.jpg alpha=0" style="height: 12em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig4b_2.jpg" alt="bay.jpg alpha=1" style="height: 12em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig4b_3.jpg" alt="bay.jpg alpha=2" style="height: 12em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig4b_4.jpg" alt="bay.jpg alpha=4" style="height: 12em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig4b_5.jpg" alt="bay.jpg alpha=8" style="height: 12em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+				<br>
+				We also try to sharpen a blurred image (<a href="https://en.wikipedia.org/wiki/File:Tsunami_by_hokusai_19th_century.jpg" class="texta"><i>The Great Wave off Kanagawa</i></a>, K. Hokusai, 1831, Woodblock print) using this method <b>(Fig. 5)</b>.
+				We note that the sharpening can introduce some artifacts (in the form of speckles or lines), that it makes edges more pronounced,
+				and that it is unable to recover some of the information in the original image that was lost during the blurring process (such as the text).
+				<br>
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Legend</th>
+						<th>Original</th>
+						<th>Blurred</th>
+						<th>\(\alpha=1\)</th>
+						<th>\(\alpha=2\)</th>
+						<th>\(\alpha=4\)</th>
+						<th>\(\alpha=8\)</th>
+						<th>Original</th>
+						<tr>
+							<td>
+								Fig. 5. <code>wave</code>.
+							</td>
+							<td>
+								<img src="media/proj2/fig5_1.jpg" alt="wave" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig5_2.jpg" alt="wave blurred" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig5_3.jpg" alt="wave alpha=1" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig5_4.jpg" alt="wave alpha=2" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig5_5.jpg" alt="wave alpha=4" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig5_6.jpg" alt="wave alpha=8" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig5_1.jpg" alt="wave" style="height: 20em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h3>Part 2.2: Hybrid Images</h3>
+			<p>
+				We can create <i>hybrid images</i> by combining the low frequency components of one image with the high frequency components of anoter (<i>cf.</i> <a href="http://olivalab.mit.edu/publications/OlivaTorralb_Hybrid_Siggraph06.pdf" class="texta">Oliva, Torralba, and Schyns, SIGGRAPH 2006</a>).
+				One efficient implementation takes the Fourier transform of both images \(\mathcal{F}(I_1), \mathcal{F}(I_2)\) and filters \(\mathcal{F}(G), \mathcal{F}(\delta_{0,0}-G)\),
+				and takes a component-wise linear combination of the two images in the frequency domain \(\mathcal{F}(G)\mathcal{F}(I_1)+\mathcal{F}(\delta_{0,0}-G)\mathcal{F}(I_2)\).
+				By the Fourier convolution theorem, this is equivalent to the Fourier transform of a superposition of the convolved images, which we can then translate back to the spatial domain by taking an inverse Fourier transform.
+				<br>
+				In our visualizations below, we show an image pyramid to simulate successively further viewing distances.
+				Indeed, we find that the hybrid effect works well for the example of Derek and Nutmeg <b>(Fig. 6a)</b>.
+				We can create a similar effect by combining an image of <a href="https://commons.wikimedia.org/wiki/File:Oski_pregame_at_UCLA_at_Cal_2008-10-25.JPG" class="texta">Oski</a> (Wikipedia) with the well-known <a href="https://www.loc.gov/resource/ppmsc.03521/" class="texta">Uncle Sam</a> (J. M. Flagg, 1917, Lithograph) <b>(Fig. 6b)</b>. We note that the effect works quite well, likely due to the similar expressions of the two characters.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Legend</th>
+						<th>Original</th>
+						<th>Hybrid</th>
+						<tr>
+							<td>
+								Fig. 6a.
+								<br>
+								<code>DerekPicture</code> and <code>nutmeg</code>.
+							</td>
+							<td>
+								<img src="media/proj2/fig6a_2.jpg" alt="nutmeg" style="height: 10em;">
+								<br>
+								<img src="media/proj2/fig6a_1.jpg" alt="DerekPicture" style="height: 10em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig6a_3.jpg" alt="hybrid 1" style="height: 20em;">
+								<img src="media/proj2/fig6a_4.jpg" alt="hybrid 2" style="height: 10em;">
+								<img src="media/proj2/fig6a_5.jpg" alt="hybrid 3" style="height: 5em;">
+								<img src="media/proj2/fig6a_6.jpg" alt="hybrid 4" style="height: 2.5em;">
+								<img src="media/proj2/fig6a_7.jpg" alt="hybrid 5" style="height: 1.25em;">
+							</td>
+						</tr>
+						<tr>
+							<td>Fig. 6b.
+								<br>
+								<code>oski-wants-you</code>.
+							</td>
+							<td>
+								<img src="media/proj2/fig6b_1.jpg" alt="Oski" style="height: 10em;">
+								<br>
+								<img src="media/proj2/fig6b_2.jpg" alt="Uncle Sam" style="height: 10em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig6b_3.jpg" alt="hybrid 1" style="height: 20em;">
+								<img src="media/proj2/fig6b_4.jpg" alt="hybrid 2" style="height: 10em;">
+								<img src="media/proj2/fig6b_5.jpg" alt="hybrid 3" style="height: 5em;">
+								<img src="media/proj2/fig6b_6.jpg" alt="hybrid 4" style="height: 2.5em;">
+								<img src="media/proj2/fig6b_7.jpg" alt="hybrid 5" style="height: 1.25em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+				<br>
+				We visualized the process of creating a hybrid image (<code>oski-wants-you</code>) by showing the log magnitude of the Fourier transform of the two input images <b>(Fig. 7a-b)</b>, the low-pass and high-pass filtered images <b>(Fig. 7c-d)</b>, and the hybrid image <b>(Fig. 7e)</b>.
+				<br>
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 7a. \(\mathcal{F}(\text{uncle-sam})\).</th>
+						<th>Fig. 7b. \(\mathcal{F}(\text{oski})\).</th>
+						<th>Fig. 7c. \(\mathcal{F}(G*\text{uncle-sam})\).</th>
+						<th>Fig. 7d. \(\mathcal{F}((\delta_{0,0}-G)*\text{oski})\).</th>
+						<th>Fig. 7e. \(\mathcal{F}(G*\text{uncle-sam}+(\delta_{0,0}-G)*\text{oski})\).</th>
+						<tr>
+							<td>
+								<img src="media/proj2/fig7a.jpg" alt="FT of Uncle Sam" style="height: 15em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig7b.jpg" alt="FT of Oski" style="height: 15em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig7c.jpg" alt="FT of LP filtered Uncle Sam" style="height: 15em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig7d.jpg" alt="FT of HP filtered Oski" style="height: 15em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig7e.jpg" alt="FT of hybrid" style="height: 15em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+				<br>
+				The effect also works for images that differ in style. We created a hybrid of <a href="https://en.wikipedia.org/wiki/File:Tsunami_by_hokusai_19th_century.jpg" class="texta"><i>The Great Wave off Kanagawa</i></a> (K. Hokusai, 1831, Woodblock print) and <a href="https://en.wikipedia.org/wiki/File:Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg" class="texta"><i>Starry Night</i></a> (V. van Gogh, 1889, Oil on canvas) <b>(Fig. 8a)</b>,
+				as well as a hybrid of the <a href="https://en.wikipedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg" class="texta"><i>Mona Lisa</i></a> (L. da Vinci, c. 1503-1506, Oil on poplar panel) and <a href="https://commons.wikimedia.org/wiki/File:1665_Girl_with_a_Pearl_Earring.jpg" class="texta"><i>Girl with a Pearl Earring</i></a> (J. Vermeer, c. 1665, Oil on canvas) <b>(Fig. 8b)</b>.
+				<br>
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Legend</th>
+						<th>Original</th>
+						<th>Hybrid</th>
+						<tr>
+							<td>Fig. 8a.
+								<br>
+								<code>wavy-night</code>.
+							</td>
+							<td>
+								<img src="media/proj2/fig8a_1.jpg" alt="Great Wave" style="height: 10em;">
+								<br>
+								<img src="media/proj2/fig8a_2.jpg" alt="Starry Night" style="height: 10em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig8a_3.jpg" alt="hybrid 1" style="height: 20em;">
+								<img src="media/proj2/fig8a_4.jpg" alt="hybrid 2" style="height: 10em;">
+								<img src="media/proj2/fig8a_5.jpg" alt="hybrid 3" style="height: 5em;">
+								<img src="media/proj2/fig8a_6.jpg" alt="hybrid 4" style="height: 2.5em;">
+								<img src="media/proj2/fig8a_7.jpg" alt="hybrid 5" style="height: 1.25em;">
+							</td>
+						</tr>
+						<tr></tr>
+							<td>Fig. 8a.
+								<br>
+								<code>mona-lisa-with-a-pearl-earring</code>.
+							</td>
+							<td>
+								<img src="media/proj2/fig8b_1.jpg" alt="Mona Lisa" style="height: 12.5em;">
+								<br>
+								<img src="media/proj2/fig8b_2.jpg" alt="Girl with a Pearl Earring" style="height: 12.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig8b_3.jpg" alt="hybrid 1" style="height: 25em;">
+								<img src="media/proj2/fig8b_4.jpg" alt="hybrid 2" style="height: 12.5em;">
+								<img src="media/proj2/fig8b_5.jpg" alt="hybrid 3" style="height: 6.75em;">
+								<img src="media/proj2/fig8b_6.jpg" alt="hybrid 4" style="height: 3.375em;">
+								<img src="media/proj2/fig8b_7.jpg" alt="hybrid 5" style="height: 1.6875em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+				<br>
+				However, there are some limitations to the hybrid effect (<b>failure cases</b>). We were unable to produce a convincing hybrid image of the <a href="https://science.nasa.gov/sun/" class="texta">Sun</a> and the <a href="https://en.wikipedia.org/wiki/File:FullMoon2010.jpg" class="texta">Moon</a> <b>(Fig. 9)</b>. This is likely due to the two images both containing important information in high and low frequencies, and that they differ significantly in color (note that the sun appears to be tinted blue in the composite).
+				<br>
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Legend</th>
+						<th>Original</th>
+						<th>Hybrid</th>
+						<tr>
+							<td>Fig. 9.
+								<br>
+								<code>sunmoon</code>.
+							</td>
+							<td>
+								<img src="media/proj2/fig9_1.jpg" alt="Sun" style="height: 10em;">
+								<br>
+								<img src="media/proj2/fig9_2.jpg" alt="Moon" style="height: 10em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig9_3.jpg" alt="hybrid 1" style="height: 20em;">
+								<img src="media/proj2/fig9_4.jpg" alt="hybrid 2" style="height: 10em;">
+								<img src="media/proj2/fig9_5.jpg" alt="hybrid 3" style="height: 5em;">
+								<img src="media/proj2/fig9_6.jpg" alt="hybrid 4" style="height: 2.5em;">
+								<img src="media/proj2/fig9_7.jpg" alt="hybrid 5" style="height: 1.25em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+			<h3>Bells <span>&#x1F514</span> and Whistles <span>&#x1F973;</span></h3>
+			<p>
+				We note that using color enhances the effect of the hybrid images (<b>Fig. 10a-d</b>). In particular, it seems best to include color for both images, especially when the images differ significantly in color scheme.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 10a. Both grayscale.</th>
+						<th>Fig. 10b. Low frequency color.</th>
+						<th>Fig. 10c. High frequency color.</th>
+						<th>Fig. 10d. Both color.</th>
+						<tr>
+							<td>
+								<img src="media/proj2/fig10a.jpg" alt="both grayscale" style="height: 15em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig10b.jpg" alt="low frequency color" style="height: 15em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig10c.jpg" alt="high frequency color" style="height: 15em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig10d.jpg" alt="both color" style="height: 15em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h3>Part 2.3: Gaussian and Laplacian Stacks</h3>
+			<p>
+				We can create a <i>Gaussian stack</i> by successively applying a Gaussian filter to an input image <b>(Fig. 11a-b)</b>.
+				We can create a <i>Laplacian stack</i> by taking the difference of the Gaussian stack (<b>Fig. 11c-d</b>).
+				This way, we can obtain a multi-frequency representation of the image (note that the original image is just the sum of the entire Laplacian stack and the last element of the Gaussian stack).
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Legend</th>
+						<th>Stack Level 0</th>
+						<th>Stack Level 1</th>
+						<th>Stack Level 2</th>
+						<th>Stack Level 3</th>
+						<th>Stack Level 4</th>
+						<th>Stack Level 5</th>
+						<th>Stack Level 6</th>
+						<th>Stack Level 7</th>
+						<th>Stack Level 8</th>
+						<th>Stack Level 9</th>
+						<tr>
+							<td>Fig. 11a. Gaussian stack of
+								<br>
+								<code>apple.jpeg</code>.
+							</td>
+							<td>
+								<img src="media/proj2/fig11a_1.jpg" alt="Level 0" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11a_2.jpg" alt="Level 1" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11a_3.jpg" alt="Level 2" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11a_4.jpg" alt="Level 3" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11a_5.jpg" alt="Level 4" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11a_6.jpg" alt="Level 5" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11a_7.jpg" alt="Level 6" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11a_8.jpg" alt="Level 7" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11a_9.jpg" alt="Level 8" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11a_10.jpg" alt="Level 9" style="height: 7.5em;">
+							</td>
+						</tr>
+						<tr>
+							<td>Fig. 11b. Gaussian stack of
+								<br>
+								<code>orange.jpeg</code>.
+							</td>
+							<td>
+								<img src="media/proj2/fig11b_1.jpg" alt="Level 0" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11b_2.jpg" alt="Level 1" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11b_3.jpg" alt="Level 2" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11b_4.jpg" alt="Level 3" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11b_5.jpg" alt="Level 4" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11b_6.jpg" alt="Level 5" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11b_7.jpg" alt="Level 6" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11b_8.jpg" alt="Level 7" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11b_9.jpg" alt="Level 8" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11b_10.jpg" alt="Level 9" style="height: 7.5em;">
+							</td>
+						</tr>
+						<tr>
+							<td>Fig. 11c. Laplacian stack of
+								<br>
+								<code>apple.jpeg</code>.
+							</td>
+							<td>
+								<img src="media/proj2/fig11c_1.jpg" alt="Level 0" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11c_2.jpg" alt="Level 1" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11c_3.jpg" alt="Level 2" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11c_4.jpg" alt="Level 3" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11c_5.jpg" alt="Level 4" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11c_6.jpg" alt="Level 5" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11c_7.jpg" alt="Level 6" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11c_8.jpg" alt="Level 7" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11c_9.jpg" alt="Level 8" style="height: 7.5em;">
+							</td>
+						</tr>
+						<tr>
+							<td>Fig. 11d. Laplacian stack of
+								<br>
+								<code>orange.jpeg</code>.
+							</td>
+							<td>
+								<img src="media/proj2/fig11d_1.jpg" alt="Level 0" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11d_2.jpg" alt="Level 1" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11d_3.jpg" alt="Level 2" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11d_4.jpg" alt="Level 3" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11d_5.jpg" alt="Level 4" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11d_6.jpg" alt="Level 5" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11d_7.jpg" alt="Level 6" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11d_8.jpg" alt="Level 7" style="height: 7.5em;">
+							</td>
+							<td>
+								<img src="media/proj2/fig11d_9.jpg" alt="Level 8" style="height: 7.5em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+				<br>
+				By applying a Gaussian stacked mask to each layer of the Laplacian stacks, we can recreate <b>Fig. 3.42</b> in the Szelski textbook (which is adapted from <a href="https://persci.mit.edu/pub_pdfs/spline83.pdf" class="texta">Burt and Adelson, ACM TOG 1983</a>) <b>(Fig. 12)</b>:
+				<br>
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th></th>
+						<th>Fig. 12. <code>Szelski Fig. 3.42</code>.</th>
+						<th></th>
+						<tr>
+							<td>
+								<img src="media/proj2/fig12_1.jpg" alt="apple 0" style="height: 7.5em;">
+								<br>
+								(a)
+							</td>
+							<td>
+								<img src="media/proj2/fig12_4.jpg" alt="orange 0" style="height: 7.5em;">
+								<br>
+								(b)
+							</td>
+							<td>
+								<img src="media/proj2/fig12_7.jpg" alt="combined 0" style="height: 7.5em;">
+								<br>
+								(c)
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<img src="media/proj2/fig12_2.jpg" alt="apple 5" style="height: 7.5em;">
+								<br>
+								(d)
+							</td>
+							<td>
+								<img src="media/proj2/fig12_5.jpg" alt="orange 5" style="height: 7.5em;">
+								<br>
+								(e)
+							</td>
+							<td>
+								<img src="media/proj2/fig12_8.jpg" alt="combined 5" style="height: 7.5em;">
+								<br>
+								(f)
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<img src="media/proj2/fig12_3.jpg" alt="apple 9" style="height: 7.5em;">
+								<br>
+								(g)
+							</td>
+							<td>
+								<img src="media/proj2/fig12_6.jpg" alt="orange 9" style="height: 7.5em;">
+								<br>
+								(h)
+							</td>
+							<td>
+								<img src="media/proj2/fig12_9.jpg" alt="combined 9" style="height: 7.5em;">
+								<br>
+								(i)
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<img src="media/proj2/fig12_10.jpg" alt="apple sum" style="height: 7.5em;">
+								<br>
+								(j)
+							</td>
+							<td>
+								<img src="media/proj2/fig12_11.jpg" alt="orange sum" style="height: 7.5em;">
+								<br>
+								(k)
+							</td>
+							<td>
+								<img src="media/proj2/fig12_12.jpg" alt="combined sum" style="height: 7.5em;">
+								<br>
+								(l)
+							</td>
+						</tr>
+					</table>
+				</center>
+				<br>
+				Importantly, note that this multi-resolution blending scheme produces smooth transitions between the two images.
+			</p>
+		</div>
+		<div class="subcard">
+			<h3>Part 2.4: Multiresolution Blending</h3>
+			Now, we can blend together arbitrary images by applying the multiresolution scheme above. Consider first the failed <code>sunmoon</code> example from our frequency hybrid; we are now able to stitch the two images together side by side (<b>Fig. 13a-c</b>).
+			<center>
+				<table class="borderedtable">
+					<th>Fig. 13a. Sun, Moon.</th>
+					<th>Fig. 13b. <code>sunmoon_lr</code>.</th>
+					<th>Fig. 13c. <code>sunmoon_ud</code>.</th>
+					<tr>
+						<td>
+							<img src="media/proj2/fig13a_1.jpg" alt="sun" style="height: 10em;">
+							<br>
+							<img src="media/proj2/fig13a_2.jpg" alt="moon" style="height: 10em;">
+						</td>
+						<td>
+							<img src="media/proj2/fig13b.jpg" alt="sunmoon" style="height: 20em;">
+						</td>
+						<td>
+							<img src="media/proj2/fig13c.jpg" alt="sunmoon" style="height: 20em;">
+						</td>
+					</tr>
+				</table>
+			</center>
+		</div>
+	</div>
+</body>
+
+<footer>
+	<p>Dasheng Bi, <span id="currentYear"></span></p>
+</footer>
+</html>
