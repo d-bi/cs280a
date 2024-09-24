@@ -679,12 +679,55 @@
 		</div>
 		<div class="subcard">
 			<h3>Part 2.4: Multiresolution Blending</h3>
-			Now, we can blend together arbitrary images by applying the multiresolution scheme above. Consider first the failed <code>sunmoon</code> example from our frequency hybrid; we are now able to stitch the two images together side by side (<b>Fig. 13a-c</b>).
+			<p>
+			Now, we can blend together arbitrary images by applying the multiresolution scheme above.
+			For example, two streets in Paris: <a href="https://commons.wikimedia.org/wiki/File:Monet-montorgueil.JPG" class="texta"><i>Rue Montorgueil</i></a> (C. Monet, 1878, Oil on canvas), and <a href="https://commons.wikimedia.org/wiki/File:Rue_Saint-Denis_with_Flags_by_Claude_Monet.jpg" class="texta"><i>Rue Saint-Denis</i></a> (C. Monet, 1878, Oil on canvas) (<b>Fig. 13a-b</b>).
+			<br>
+			<br>
 			<center>
 				<table class="borderedtable">
-					<th>Fig. 13a. Sun, Moon.</th>
-					<th>Fig. 13b. <code>sunmoon_lr</code>.</th>
-					<th>Fig. 13c. <code>sunmoon_ud</code>.</th>
+					<th>Fig. 13a. Original images.</th>
+					<th>Fig. 13b. <code>rue-montordenis</code>.</th>
+					<tr>
+						<td>
+							<img src="media/proj2/fig15a_1.jpg" alt="rm" style="height: 20em;">
+							<img src="media/proj2/fig15a_2.jpg" alt="rs-d" style="height: 20em;">
+						</td>
+						<td>
+							<img src="media/proj2/fig15b.jpg" alt="rue-montordenis" style="height: 30em;">
+						</td>
+					</tr>
+				</table>
+			</center>
+			<br>
+			We also note that the blending scheme can be applied to images that differ in style, such as <a href="https://commons.wikimedia.org/wiki/File:Monet_-_Impression,_Sunrise.jpg" class="texta"><i>Impression, Sunrise</i></a> (C. Monet, 1872, Oil on canvas), and a modern photo of sunrise over the Bay bridge (<b>Fig. 14a-b</b>).
+			<br>
+			<br>
+			<center>
+				<table class="borderedtable">
+					<th>Fig. 14a. Original images.</th>
+					<th>Fig. 14b. <code>impressionist-bay-bridge</code>.</th>
+					<tr>
+						<td>
+							<img src="media/proj2/fig14a_1.jpg" alt="sunrise" style="height: 10em;">
+							<br>
+							<img src="media/proj2/fig14a_2.jpg" alt="bay-bridge" style="height: 10em;">
+						</td>
+						<td>
+							<img src="media/proj2/fig14b.jpg" alt="impressionist-bay-bridge" style="height: 20em;">
+						</td>
+					</tr>
+				</table>
+			</center>
+			<br>
+			We also reconsider the failed <code>sunmoon</code> example from our frequency hybrid; we are now able to stitch the two images together side by side (<b>Fig. 15a-c</b>).
+			<br>
+			<br>
+			<center>
+				<table class="borderedtable">
+					<th>Fig. 15a. Sun, Moon.</th>
+					<th>Fig. 15b. <code>sunmoon_lr</code>.</th>
+					<th>Fig. 15c. <code>sunmoon_ud</code>.</th>
 					<tr>
 						<td>
 							<img src="media/proj2/fig13a_1.jpg" alt="sun" style="height: 10em;">
@@ -700,6 +743,122 @@
 					</tr>
 				</table>
 			</center>
+			<br>
+			Finally, we revisit the <code>mona-lisa-with-a-pearl-earring</code> example, blending <a href="https://en.wikipedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg" class="texta"><i>Mona Lisa</i></a> (L. da Vinci, c. 1503-1506, Oil on poplar panel) and <a href="https://commons.wikimedia.org/wiki/File:1665_Girl_with_a_Pearl_Earring.jpg" class="texta"><i>Girl with a Pearl Earring</i></a> (J. Vermeer, c. 1665, Oil on canvas). With a custom mask extracted using <a href="https://segment-anything.com/demo" class="texta">SAM</a> (note that we intentionally did not select the entire face but rather a ROI with non-smooth boundary), now information from both paintings can be perceived at the same viewing distance (<b>Fig. 16a-c</b>).
+			<br>
+			<br>
+			<center>
+				<table class="borderedtable">
+					<th>Fig. 16a. Original images.</th>
+					<th>Fig. 16b. Custom mask.</th>
+					<th>Fig. 16c. <code>mona-lisa-with-a-pearl-earring</code>.</th>
+					<tr>
+						<td>
+							<img src="media/proj2/fig16a_1.jpg" alt="mona-lisa" style="height: 10em;">
+							<br>
+							<img src="media/proj2/fig16a_2.jpg" alt="girl-with-a-pearl-earring" style="height: 10em;">
+						</td>
+						<td>
+							<img src="media/proj2/fig16b.jpg" alt="mask" style="height: 20em;">
+						</td>
+						<td>
+							<img src="media/proj2/fig16c.jpg" alt="mona-lisa-with-a-pearl-earring" style="height: 20em;">
+						</td>
+					</tr>
+				</table>
+			</center>
+			<br>
+			We demonstrate the multi-resolution blending process with a Szelski/Burt-Adelson type figure (<b>Fig. 17</b>). Note that we selected deeper levels in the stack for visualization since the superficial levels (high frequencies) were too faint due to the style of oil paintings.
+			<br>
+			<br>
+			<center>
+				<table class="borderedtable">
+					<th></th>
+					<th>Fig. 17. <code>Szelski Fig. 3.42</code>.</th>
+					<th></th>
+					<tr>
+						<td>
+							<img src="media/proj2/fig17_1.jpg" alt="mona-lisa 5" style="height: 7.5em;">
+							<br>
+							(a)
+						</td>
+						<td>
+							<img src="media/proj2/fig17_4.jpg" alt="girl-with-pearl-earring 5" style="height: 7.5em;">
+							<br>
+							(b)
+						</td>
+						<td>
+							<img src="media/proj2/fig17_7.jpg" alt="combined 5" style="height: 7.5em;">
+							<br>
+							(c)
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<img src="media/proj2/fig17_2.jpg" alt="mona-lisa 8" style="height: 7.5em;">
+							<br>
+							(d)
+						</td>
+						<td>
+							<img src="media/proj2/fig17_5.jpg" alt="girl-with-pearl-earring 8" style="height: 7.5em;">
+							<br>
+							(e)
+						</td>
+						<td>
+							<img src="media/proj2/fig17_8.jpg" alt="combined 8" style="height: 7.5em;">
+							<br>
+							(f)
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<img src="media/proj2/fig17_3.jpg" alt="mona-lisa 11" style="height: 7.5em;">
+							<br>
+							(g)
+						</td>
+						<td>
+							<img src="media/proj2/fig17_6.jpg" alt="girl-with-pearl-earring 11" style="height: 7.5em;">
+							<br>
+							(h)
+						</td>
+						<td>
+							<img src="media/proj2/fig17_9.jpg" alt="combined 11" style="height: 7.5em;">
+							<br>
+							(i)
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<img src="media/proj2/fig17_10.jpg" alt="mona-lisa sum" style="height: 7.5em;">
+							<br>
+							(j)
+						</td>
+						<td>
+							<img src="media/proj2/fig17_11.jpg" alt="girl-with-pearl-earring sum" style="height: 7.5em;">
+							<br>
+							(k)
+						</td>
+						<td>
+							<img src="media/proj2/fig17_12.jpg" alt="combined sum" style="height: 7.5em;">
+							<br>
+							(l)
+						</td>
+					</tr>
+				</table>
+			</center>
+			</p>
+			<h3>Bells <span>&#x1F514</span> and Whistles <span>&#x1F973;</span></h3>
+			<p>
+				Note that our implementation is able to process color images by default, and all of the preceding examples were done in color.
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Comment: Exploiting human psychophysics</h2>
+			<p>
+				The reason underlying most of the effects produced in this project is that humans have different sensitivities for perceiving different spatial frequencies (cf. the Campbell-Robson curve).
+				To a hypothetical observer with uniform sensitivity over the frequency domain, the hybrid images that we created would be equivalent to a linear combination of the two images (indeed, by the Fourier convolution theorem, the hybrid image is simply a superposition in frequency space).
+				Therefore, ending our conclusion on a poetic note: why, as the Chinese poet Su Dongpo observed, does <a href="https://whc.unesco.org/en/list/778/" class="texta">Mt. Lu</a> appear "far, near, high, low, no two parts alike?" It is because human vision is not frequency invariant.
+			</p>
 		</div>
 	</div>
 </body>
