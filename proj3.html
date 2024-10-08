@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		CS 280A Fa 24 Projects - Dasheng Bi
+	</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script src="script.js" async></script>
+	<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body>
+	<div class="navcont">
+		<ul class="nav">
+			<li class="nav"><a href="index.html">Index</a></li>
+			<li class="nav"><a href="proj1.html">Project 1</a></li>
+			<li class="nav"><a href="proj2.html">Project 2</a></li>
+			<li class="nav"><a class="curr_nav">Project 3</a></li>
+		</ul>
+	</div>
+	<center>
+	</center>
+	<div class="card">
+		<h1>Face Morphing</h1>
+		<div class="subcard">
+			<center>
+				<p><i>"... But the human form has ten thousand changes that never come to an end."</i></p>
+				<p><span>&#8212;</span><i>Chuang Tzu</i>	(Watson trans.)</p>
+			</center>
+		</div>
+		<div class="subcard">
+			<h2>Part 1: Defining Correspondences</h2>
+			<p>
+				Given a pair of face images (<i>e.g.</i>, <code>me.jpg</code> from <a href="https://vision.berkeley.edu/people/dasheng-bi/" class="texta">a department webpage</a> and <code>george_small.jpg</code> from <a href="https://martinschoeller.com/George-Clooney-2" class="texta">Martin Schoeller</a>), we define a set containing pairs of key points corresponding to salient facial features (<b>Fig. 1a-b</b>, 77 points each). These points add constraints to our morphing so that important facial features will appear to move linearly.
+				Note that this was done manually, using either <code>matplotlib.pyplot.ginput</code> or <a href="https://cal-cs180.github.io/fa23/hw/proj3/tool.html" class="texta">a labeling tool</a> developed by a previous student, depending on the images.
+				We then computed a triangulation for the two sets of points (<b>Fig. 1a-b</b>, 148 triangles), splitting the images into local regions that will be morphed independently. Specifically, we used the Delaunay triangulation of the mean between the two point sets.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 1a. Mesh of <code>me.jpg</code>.</th>
+						<th>Fig. 1b. Mesh of <code>george_small.jpg</code>.</th>
+						<tr>
+							<td>
+								<img src="media/proj3/fig1a.jpg" alt="me.jpg" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig1b.jpg" alt="george_small.jpg" style="height: 25em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Part 2: Computing the "Mid-way Face"</h2>
+			<p>
+				Given a shared triangulation, we can transform between two images by applying local affine transforms to each triangle and filling in pixel values with inverse warping.
+				Therefore, we can compute the "mid-way face" of two corresponding images by taking a convex (in this case, simple average) combination of each of the two images transformed to the average shape:
+				\[I_a:=(1-d)I_1[T_{S_a\mapsto S_1}S_a]+dI_2[T_{S_a\mapsto S_2}S_a]\tag{1}\]
+				Where \(I_1\) and \(I_2\) are the two images, \(S_1\) and \(S_2\) are the sets of corresponding triangles, \(S_a=(1-t)S_1+tS_2\) is the set of average triangles, and \(T_{A\mapsto B}\) denotes the affine transforms that map each triangle in A to the corresponding triangle in B.
+				We adopt this simplified notation that hides the loop over triangles, but assume that it is appropriately blocked so that each affine transform is indeed applied locally to the corresponding triangle, and that the indexing operation \([\cdot]\) accounts for (<i>e.g.</i>, bilinear) interpolation during inverse warping.
+				Here, for the "mid-way face," \(d=t=0.5\) (<b>Fig. 2</b>). 
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 2a. <code>me.jpg</code>.</th>
+						<th>Fig. 2b. "Mid-way face."</th>
+						<th>Fig. 2c. <code>george_small.jpg</code>.</th>
+						<tr>
+							<td>
+								<img src="media/proj3/fig2a.jpg" alt="me.jpg" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig2b.jpg" alt="midway" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig2c.jpg" alt="george_small.jpg" style="height: 20em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Part 3: The Morph Sequence</h2>
+			<p>
+				By varying the parameters \(d\) and \(t\) in the above formula \((1)\), we can generate a morph sequence between two images.
+				Here, we show morph sequences between <code>me.jpg</code> and <code>george_small.jpg</code>
+				with \(d=t\) varying linearly in \([0,1]\) over \(60\) frames (and then played in reverse for another \(60\) frames) (<b>Fig. 3a</b>),
+				as well as a version where \(t=\frac{1}{1+\exp(\tau)}\) where \(\tau\) varies linearly in \([-5,5]\) over the same number of frames (<b>Fig. 3b</b>).
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 3a. Linear morph.</th>
+						<th>Fig. 3b. Sigmoidal morph.</th>
+						<tr>
+							<td>
+								<img src="media/proj3/fig3a.gif" alt="linear morph" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig3b.gif" alt="sigmoidal morph" style="height: 25em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Part 4: The "Mean Face" of a Population</h2>
+			<p>
+				With multiple faces from a given population and corresponding key points, we can consider various population statistics.
+				Here, we use the <a href="https://web.archive.org/web/20210305094647/http://www2.imm.dtu.dk/~aam/datasets/datasets.html" class="texta" style="font-size: large;"><code>Danes</code></a> dataset (\(37\) images) as a proof-of-concept.
+				The <i>average shape</i> of a population is simply the mean of the key points. We can then morph each face to this average shape again using formula \((1)\) with \(t=1, d=0\) (<b>Fig. 4a-c</b>), and compute the pixel-space average of these morphed faces to get the <i>mean face</i> of the population (<b>Fig. 4d</b>).
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 4a. <code>01-1m.bmp</code>.</th>
+						<th>Fig. 4b. <code>35-1f.bmp</code>.</th>
+						<th>Fig. 4c. <code>34-1m.bmp</code>.</th>
+						<th>Fig. 4d. Mean face of <code>Danes</code>.</th>
+						<tr>
+							<td>
+								<img src="media/proj3/fig4a_1.jpg" alt="01-1m orig" style="height: 12em;">
+								<br>
+								Original
+								<br>
+								<br>
+								<img src="media/proj3/fig4a_2.jpg" alt="01-1m morphed" style="height: 12em;">
+								<br>
+								Morphed
+							</td>
+							<td>
+								<img src="media/proj3/fig4b_1.jpg" alt="35-1f orig" style="height: 12em;">
+								<br>
+								Original
+								<br>
+								<br>
+								<img src="media/proj3/fig4b_2.jpg" alt="35-1f morphed" style="height: 12em;">
+								<br>
+								Morphed
+							</td>
+							<td>
+								<img src="media/proj3/fig4c_1.jpg" alt="34-1m orig" style="height: 12em;">
+								<br>
+								Original
+								<br>
+								<br>
+								<img src="media/proj3/fig4c_2.jpg" alt="34-1m morphed" style="height: 12em;">
+								<br>
+								Morphed
+							</td>
+							<td>
+								<img src="media/proj3/fig4d.jpg" alt="mean face" style="height: 24em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+				<br>
+				We can treat the mean face as a regular image as well, and can warp its geometry to match another image (<i>e.g.</i>, <code>me.jpg</code>) and <i>vice versa</i> (<b>Fig. 5a-d</b>).
+				Indeed, we find that the warped faces capture shape features of their respective references.
+				<br>
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 5a. <code>me.jpg</code>.</th>
+						<th>Fig. 5b. <code>me.jpg</code> to <code>mean_dane.jpg</code>.</th>
+						<th>Fig. 5c. <code>mean_dane.jpg</code> to <code>me.jpg</code>.</th>
+						<th>Fig. 5d. <code>mean_dane.jpg</code>.</th>
+						<tr>
+							<td>
+								<img src="media/proj3/fig5a.jpg" alt="me" style="height: 10em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig5b.jpg" alt="me to dane" style="height: 15em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig5c.jpg" alt="dane to me" style="height: 15em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig4d.jpg" alt="dane" style="height: 10em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Part 5: Caricatures: Extrapolating from the Mean</h2>
+			<p>
+				If we let \(t\) vary outside the range \([0,1]\) in formula \((1)\), we can extrapolate from a reference image to create a caricature emphasizing features of the other image.
+				We show a range of results for \(t\in\{-1, -0.75, -0.5, -0.25, 0, 0.5, 1, 1.25, 1.5, 1.75, 2\}\) (<b>Fig. 6a-k</b>).
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 6a. \(t=-1\).</th>
+						<th>Fig. 6b. \(t=-0.75\).</th>
+						<th>Fig. 6c. \(t=-0.5\).</th>
+						<th>Fig. 6d. \(t=-0.25\).</th>
+						<th>Fig. 6e. \(t=0\).</th>
+						<th>Fig. 6f. \(t=0.5\).</th>
+						<th>Fig. 6g. \(t=1\).</th>
+						<th>Fig. 6h. \(t=1.25\).</th>
+						<th>Fig. 6i. \(t=1.5\).</th>
+						<th>Fig. 6j. \(t=1.75\).</th>
+						<th>Fig. 6k. \(t=2\).</th>
+						<tr>
+							<td>
+								<img src="media/proj3/fig6a.jpg" alt="t=-1" style="height: 10em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig6b.jpg" alt="t=-0.75" style="height: 10em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig6c.jpg" alt="t=-0.5" style="height: 10em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig6d.jpg" alt="t=-0.25" style="height: 10em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig5a.jpg" alt="t=0" style="height: 10em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig6f.jpg" alt="t=0.5" style="height: 10em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig5b.jpg" alt="t=1" style="height: 10em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig6h.jpg" alt="t=1.25" style="height: 10em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig6i.jpg" alt="t=1.5" style="height: 10em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig6j.jpg" alt="t=1.75" style="height: 10em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig6k.jpg" alt="t=2" style="height: 10em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Bells <span>&#x1F514</span> and Whistles <span>&#x1F973;</span></h2>
+			<p>
+				We can change ethnicity-specific features by morphing between faces. In particular, we can change the shape, appearance, or both. We again note that there is a reduction to formula \((1)\);
+				changing shape is equivalent to \(t>0, d=0\) while changing appearance is equivalent to \(t=0, d>0\). We show the results below using the <code>Danes</code> dataset mean face (<b>Fig. 7a-d</b>).
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 7a. Original images.</th>
+						<th>Fig. 7b. Shape change only (\((t,d)=(0.5,0)\)).</th>
+						<th>Fig. 7c. Appearance change only (\((t,d)=(0,0.5)\)).</th>
+						<th>Fig. 7d. Shape and appearance change (\((t,d)=(0.5,0.5)\)).</th>
+						<tr>
+							<td>
+								<img src="media/proj3/fig5a.jpg" alt="orig" style="height: 10em;">
+								<br>
+								<img src="media/proj3/fig4d.jpg" alt="orig" style="height: 10em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig6f.jpg" alt="shape change" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig7c.jpg" alt="appearance change" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj3/fig7d.jpg" alt="shape and appearance change" style="height: 20em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Comment: A Manifold of Faces</h2>
+			<p>
+				The fact that piecewise/local affine warping can be used to create perceptually convincing morphs between faces suggests that faces live in a low-dimensional manifold of image space.
+				Indeed, one could reasonably surmise that the dimensionality of an image class should be roughly proportional to the number of key points it admits for good morphing.
+				We then note that we are traversing this manifold along very restricted paths (linear ones, in particular! Indeed, given two input images, a line is the most reasonable trajectory to construct),
+				and it is not difficult to imagine incredibly rich families of transformations that we might be able to perform given more access to the space (<i>e.g.</i>, a large dataset forming a perceptual prior).
+				Thus, the space is vast, the possibilities are endless, yet the perception is simple.
+			</p>
+		</div>
+	</div>
+</body>
+
+<footer>
+	<p>Dasheng Bi, <span id="currentYear"></span></p>
+</footer>
+</html>
