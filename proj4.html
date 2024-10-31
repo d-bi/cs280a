@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		CS 280A Fa 24 Projects - Dasheng Bi
+	</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script src="script.js" async></script>
+	<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body>
+	<div class="navcont">
+		<ul class="nav">
+			<li class="nav"><a href="index.html">Index</a></li>
+			<li class="nav"><a href="proj1.html">Project 1</a></li>
+			<li class="nav"><a href="proj2.html">Project 2</a></li>
+			<li class="nav"><a href="proj3.html">Project 3</a></li>
+			<li class="nav"><a class="curr_nav">Project 4</a></li>
+		</ul>
+	</div>
+	<center>
+	</center>
+	<center>
+		<h1>(Auto)Stitching Photo Mosaics</h1>
+	</center>
+	<div class="card">
+		<h2>Project 4A: Image Warping and Mosaicing</h2>
+		<div class="subcard">
+			<center>
+				<p><i>"When a shape stirs, it begets not a shape but a shadow."</i></p>
+				<p><span>&#8212;</span><i>Lieh-Tzu</i>	(Graham trans.)</p>
+			</center>
+		</div>
+		<div class="subcard">
+			<h2>Part 1: Shoot and digitize pictures</h2>
+			<p>
+				We take several sets of photographs where, within each set, the images are approximately related to each other by camera rotation.
+				Some examples are a sunset view of San Francisco (<b>Fig. 1a</b>), the interior of the <a href="https://en.wikipedia.org/wiki/Palace_Hotel,_San_Francisco" class="texta">Palace Hotel</a> in San Francisco (<b>Fig. 1b</b>), and <a href="https://en.wikipedia.org/wiki/St._Peter's_Basilica" class="texta">St. Peter's Basilica</a> in the Vatican City (<b>Fig. 1c</b>).
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Legend</th>
+						<th>Images</th>
+						<tr>
+							<td>
+								Fig. 1a. <code>sf</code>.
+							</td>
+							<td>
+								<img src="media/proj4/fig1a_1.jpg" alt="sf_-2" style="height: 15em;">
+								<img src="media/proj4/fig1a_2.jpg" alt="sf_-1" style="height: 15em;">
+								<img src="media/proj4/fig1a_3.jpg" alt="sf_0" style="height: 15em;">
+								<img src="media/proj4/fig1a_4.jpg" alt="sf_1" style="height: 15em;">
+								<img src="media/proj4/fig1a_5.jpg" alt="sf_2" style="height: 15em;">
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Fig. 1b. <code>palace</code>.
+							</td>
+							<td>
+								<img src="media/proj4/fig1b_1.jpg" alt="palace_1" style="height: 15em;">
+								<img src="media/proj4/fig1b_2.jpg" alt="palace_2" style="height: 15em;">
+								<img src="media/proj4/fig1b_3.jpg" alt="palace_3" style="height: 15em;">
+								<img src="media/proj4/fig1b_4.jpg" alt="palace_4" style="height: 15em;">
+								<img src="media/proj4/fig1b_5.jpg" alt="palace_5" style="height: 15em;">
+								<img src="media/proj4/fig1b_6.jpg" alt="palace_6" style="height: 15em;">
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Fig. 1c. <code>vatican</code>.
+							</td>
+							<td>
+								<img src="media/proj4/fig1c_1.jpg" alt="vatican_1" style="height: 15em;">
+								<img src="media/proj4/fig1c_2.jpg" alt="vatican_2" style="height: 15em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Part 2: Recover Homographies</h2>
+			<p>
+				Given a pair of images assumed to be related by a homography, we can estimate the transformation by finding corresponding points (<i>e.g.</i>, using a <a href="https://cal-cs180.github.io/fa23/hw/proj3/tool.html" class="texta">labeling tool</a> developed by a previous student; <b>Fig. 2</b>).
+				In particular, let the homography be parameterized by the matrix \(H=\begin{pmatrix}h_0&h_1&h_2\\h_3&h_4&h_5\\h_6&h_7&1\end{pmatrix}\) that acts on homogeneous coordinates.
+				Given a pair of points \(p_1=\begin{pmatrix}x_1\\y_1\\1\end{pmatrix}\), \(p_2=\begin{pmatrix}x_2\\y_2\\1\end{pmatrix}\) in the two images,
+				a perfect homography transformation should satisfy the equations
+				\(H p_1 = wp_2\), where \(w\) is a scalar. Expanding the matrix multiplication and simplifying, we can rewrite the constraints as
+				\[
+					\begin{pmatrix}
+					x_1 & y_1 & 1 & 0 & 0 & 0 & -x_1 x_2 & -y_1 x_2\\
+					0 & 0 & 0 & x_1 & y_1 & 1 & -x_1 y_2 & -y_1 y_2
+					\end{pmatrix}
+					\begin{pmatrix}
+					h_0\\h_1\\h_2\\h_3\\h_4\\h_5\\h_6\\h_7
+					\end{pmatrix}
+					=
+					\begin{pmatrix}
+					x_2\\y_2
+					\end{pmatrix}
+				\]
+				In general, we can define more than four pairs of corresponding points, obtain an overconstrained system of equations (namely, a stack of pairs of equations of the above form), and solve for an approximate homography using least squares.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 2. Example corresponding points.</th>
+						<tr>
+							<td>
+								<img src="media/proj4/fig2.jpg" alt="corresponding points" style="height: 15em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Part 3: Warp the images</h2>
+			<p>
+				Given a homography, we can transform one image to another camera projection through inverse warping. In particular, we can rectify an image by warping a quadrilateral to a rectangle (<b>Fig. 3a-c</b>).
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Legend</th>
+						<th>Original</th>
+						<th>Rectified</th>
+						<tr>
+							<td>
+								Fig. 3a. <code>alice</code>.
+							</td>
+							<td>
+								<img src="media/proj4/fig3a_1.jpg" alt="alice orig" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj4/fig3a_2.jpg" alt="alice rect" style="height: 20em;">
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Fig. 3b. <code>campbell</code>.
+							</td>
+							<td>
+								<img src="media/proj4/fig3b_1.jpg" alt="campbell orig" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj4/fig3b_2.jpg" alt="campbell rect" style="height: 20em;">
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Fig. 3c. <code>cablecar</code>.
+							</td>
+							<td>
+								<img src="media/proj4/fig3c_1.jpg" alt="cablecar orig" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj4/fig3c_2.jpg" alt="cablecar rect" style="height: 20em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Part 4: Blend images into a mosaic</h2>
+			<p>
+				To create a mosaic, we transform each image in the set to a common projection (<i>e.g.</i>, one of the images). For far apart images that do not have direct corresponding points, we can compute the composition of several homographies using intermediate images.
+				We use a weighted average of the pixel values of images that overlap at a given location (after transforming each individual image). In particular, for each pixel \(x=(i,j)\), let
+				\[\alpha_{x}^{(n)}=\frac{d_{x}^{(n)}}{\sum_{n}d_{x}^{(n)}}\]
+				Where \(\alpha_{x}^{(n)}\) is the weight of the \(n\)th image for this pixel, and
+				\[d_{x}^{(n)}=\begin{cases}\inf_{p\in \partial (H_nI_n)}\|p-x\|_2,\ x\in H_nI_n\\ 0,\ x\not\in H_nI_n\end{cases}\]
+				Is the Euclidean distance of the pixel to the boundary \(\partial(\cdot)\) of the transformed image \(I_n\) under homography \(H_n\). Example distance transforms are shown in <b>Fig. 4</b>.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 4a. \(d\) for <code>vatican_1</code>.</th>
+						<th>Fig. 4a. \(d\) for <code>vatican_2</code>.</th>
+						<tr>
+							<td>
+								<img src="media/proj4/fig4a.jpg" alt="alpha_1" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj4/fig4b.jpg" alt="alpha_2" style="height: 20em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+				<br>
+				We can then take the weighted average of the pixel values of the images at each pixel location to create the final mosaic (<b>Fig. 5a-c</b>).
+				<br>
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 5a. <code>sf</code> composite.</th>
+						<th>Fig. 5b. <code>palace</code> composite.</th>
+						<th>Fig. 5c. <code>vatican</code> composite.</th>
+						<tr>
+							<td>
+								<img src="media/proj4/fig5a.jpg" alt="sf composite" style="height: 30em;">
+							</td>
+							<td>
+								<img src="media/proj4/fig5b.jpg" alt="palace composite" style="height: 30em;">
+							</td>
+							<td>
+								<img src="media/proj4/fig5c.jpg" alt="vatican composite" style="height: 30em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+	</div>
+	<div class="card">
+		<h2>Project 4B: Feature matching for autostitching</h2>
+		<div class="subcard">
+			<center>
+				<p><i>"I dance, and my shadow flails wildly."</i></p>
+				<p><span>&#8212;</span>Li Bai, <i>Drinking Alone by Moonlight</i>	(Owen trans.)</p>
+			</center>
+		</div>
+		<div class="subcard">
+			In the following parts, we follow the logic of <a href="https://inst.eecs.berkeley.edu/~cs180/fa24/hw/proj4/Papers/MOPS.pdf" class="texta">Brown <i>et al.</i>, CVPR 2005</a> to automatically detect and match corner features in pairs of images. These feature pairs can be used as corresponding points to compute homographies and generate image mosaics in a scalable manner.
+			We use the below two photos of sunset to demonstate each step (<b>Fig. 6a-b</b>).
+			<br>
+			<center>
+				<table class="borderedtable">
+					<th>Fig. 6a. <code>sunset_1</code></th>
+					<th>Fig. 6b. <code>sunset_2</code></th>
+					<tr>
+						<td>
+							<img src="media/proj4/fig6a.jpg" alt="sunset_1" style="height: 15em;">
+						</td>
+						<td>
+							<img src="media/proj4/fig6b.jpg" alt="sunset_2" style="height: 15em;">
+						</td>
+					</tr>
+				</table>
+			</center>
+		</div>
+		<div class="subcard">
+			<h2>Part 1: Detecting corner features in an image</h2>
+			<p>
+				We use the Harris interest point detector (<a href="https://inst.eecs.berkeley.edu/~cs180/fa24/hw/proj4/harris.py" class="texta">provided implementation</a>) to find corners in an image (<b>Fig. 7a</b>). We used \(\sigma=4\) for the Harris detector to obtain a reasonable density of points in the images.
+				We use adaptive non-maximal suppression to select a subset of the detected corners (<b>Fig. 7b</b>). Specifically, for each corner \(x_i\in\mathcal{H}\) detected by the Harris detector,
+				we compute
+				\[r_i=\min\left\{\{\|x_i-x_j\|_2\mid x_j\in\mathcal{H}, H[x_i] < cH[x_j]\}\cup\{\infty\}\right\}\]
+				as the minimum suppression radius for point \(x_i\), where \(H\) is the Harris matrix, \(\mathcal{H}\) is the set of Harris corners, and \(c\) is a robustness coefficient (we use \(c=0.9\)).
+				We then output the subset of \(N=500\) corners with the largest suppression radii.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 7a. <code>Harris</code> of <code>sunset_1</code>.</th>
+						<th>Fig. 7b. <code>ANMS</code> of <code>sunset_1</code>.</th>
+						<tr>
+							<td>
+								<img src="media/proj4/fig7a.jpg" alt="harris of sunset" style="height: 15em;">
+							</td>
+							<td>
+								<img src="media/proj4/fig7b.jpg" alt="anms of sunset" style="height: 15em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Part 2: Extracting a feature descriptor for each feature point</h2>
+			<p>
+				We extract axis-aligned \(40\times 40\)-pixel patches around each feature point, and downsample (with anti-aliasing) to \(8\times 8\) pixels.
+				\(100\) example patches for <code>sunset_1</code> are shown in <b>Fig. 8</b>.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 8. Example patches for <code>sunset_1</code>.</th>
+						<tr>
+							<td>
+								<img src="media/proj4/fig8.jpg" alt="patches of sunset" style="height: 20em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Part 3: Matching these feature descriptors between two images</h2>
+			<p>
+				To find potential corresponding points between two images, we compute the pairwise Euclidean distance between the feature descriptors of the two images.
+				To reduce outliers, we use Lowe's technique as in the paper: for each point in the first image, we find the two nearest neighbors (NN) in the set of feature points in the second image.
+				We then compute the ratio of the squared Euclidean distance to the first and second NNs, and only store this match if the ratio is less than a threshold
+				(we use \(0.2\), which was empirically found to be a reasonable threshold both in <b>Fig. 6</b> in the paper and by inspecting a distribution of ratios on our images; see <b>Fig. 9a</b>).
+				Final matches obtained are shown in <b>Fig. 9b</b>.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 9a. 1-NN and 2-NN squared distance ratios for <code>sunset</code>.</th>
+						<th>Fig. 9b. Matching points for <code>sunset</code>.</th>
+						<tr>
+							<td>
+								<img src="media/proj4/fig9a.png" alt="ratios" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj4/fig9b.jpg" alt="matching points of sunset" style="height: 20em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Part 4: Use a robust method (RANSAC) to compute a homography</h2>
+			<p>
+				To compute a robust homography from the automatically detected feature matches, we use a \(4\)-point RANSAC algorithm. Specifically,
+				we randomly sample \(4\) pairs of feature points, compute the homography from these pairs, apply this homography to all matched points, and count the number of inliers (points where the actual match is less than \(d\) pixels away from the transformed match using this homography).
+				We repeat this process for \(N\) iterations, and output the maximal set of inliers. This set is then used to compute the final homography through least squares.
+				We use \(N=1000\) and \(d=3\) below, and obtain the corresponding points as in <b>Fig. 10</b> (note that Lowe's technique already gives a reasonable set of corresponding points, so the additional filtering from RANSAC appears minimal here).
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 10. Final matching points for <code>sunset</code>.</th>
+						<tr>
+							<td>
+								<img src="media/proj4/fig10.jpg" alt="ransac" style="height: 20em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Part 5: Proceed as in the first part to produce a mosaic</h2>
+			<p>
+				Using the homography computed from the automatically detected feature matches, we can proceed as in the first part to produce a mosaic (<b>Fig. 11a-c</b>).
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Legend</th>
+						<th>Manual</th>
+						<th>Automatic</th>
+						<tr>
+							<td>Fig. 11a. <code>sf</code>.</td>
+							<td>
+								<img src="media/proj4/fig5a.jpg" alt="sf manual" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj4/fig11a_2.jpg" alt="sf auto" style="height: 20em;">
+							</td>
+						</tr>
+						<tr>
+							<td>Fig. 11b. <code>palace</code>.</td>
+							<td>
+								<img src="media/proj4/fig5b.jpg" alt="palace manual" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj4/fig11b_2.jpg" alt="palace auto" style="height: 20em;">
+							</td>
+						</tr>
+						<tr>
+							<td>Fig. 11c. <code>vatican</code>.</td>
+							<td>
+								<img src="media/proj4/fig5c.jpg" alt="vatican manual" style="height: 20em;">
+							</td>
+							<td>
+								<img src="media/proj4/fig11c_2.jpg" alt="vatican auto" style="height: 20em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+				<br>
+				Automation enables scalability, so more examples of visually appealling image mosaics are shown below (<b>Fig. 12 a-e</b>).
+				<br>
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Legend</th>
+						<th>Automatic Mosaic</th>
+						<tr>
+							<td>Fig. 12a. Full <code>sf</code>.</td>
+							<td>
+								<img src="media/proj4/fig12a.jpg" alt="sf full" style="height: 30em;">
+							</td>
+						</tr>
+						<tr>
+							<td>Fig. 12b. <code>botanical-garden</code>.</td>
+							<td>
+								<img src="media/proj4/fig12b.jpg" alt="botanical-garden" style="height: 30em;">
+							</td>
+						</tr>
+						<tr>
+							<td>Fig. 12c. <code>canyon</code>.<br>(Photos by R. Sun)</td>
+							<td>
+								<img src="media/proj4/fig12c.jpg" alt="canyon" style="height: 25em;">
+							</td>
+						</tr>
+						<tr>
+							<td>Fig. 12d. <code>sunset</code>.</td>
+							<td>
+								<img src="media/proj4/fig12d.jpg" alt="sunset" style="height: 25em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+	</div>
+	<div class="card">
+		<h2>Comment: Combining shadows of a whole</h2>
+	</div>
+</body>
+
+<footer>
+	<p>Dasheng Bi, <span id="currentYear"></span></p>
+</footer>
+</html>
