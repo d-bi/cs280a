@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>
+		CS 280A Fa 24 Projects - Dasheng Bi
+	</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script src="script.js" async></script>
+	<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body>
+	<div class="navcont">
+		<ul class="nav">
+			<li class="nav"><a href="index.html">Index</a></li>
+			<li class="nav"><a href="proj1.html">Project 1</a></li>
+			<li class="nav"><a href="proj2.html">Project 2</a></li>
+			<li class="nav"><a href="proj3.html">Project 3</a></li>
+			<li class="nav"><a href="proj4.html">Project 4</a></li>
+			<li class="nav"><a href="proj5.html">Project 5</a></li>
+			<li class="nav"><a class="curr_nav">Final Project</a></li>
+		</ul>
+	</div>
+	<center>
+	</center>
+	<div class="card">
+		<h1>Cleaner StreetView (<a href="media/projf/projf_writeup_dbi.pdf" class="texta">Writeup</a>)</h1>
+		<div class="subcard">
+			<center>
+				<p><i>"Heaven and earth are huge, but they are alike in their transformations.
+					<br>
+					The ten thousand things are numerous, but they are one in their good order."
+				</i></p>
+				<p><span>&#8212;</span><i>Chuang Tzu</i>	(Watson trans.)</p>
+			</center>
+		</div>
+		<div class="subcard">
+			<h2>Problem Statement</h2>
+			<p>
+				For sequences of photos acquired over a spatiotemporal range, such as those in StreetView, we often care more about static components and landmarks in the scene, whereas dynamic, moving objects may be distracting and produce artifacts when performing reconstruction or interpolation on the scene. Here, we propose a pipeline to obtain <b>Cleaner StreetView</b> images, that combines inference on large, pretrained image models and classical stereo pose estimation techniques. We show several examples for visualization and highlight potential points for improvement.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 1. Schematic of proposed pipeline.</th>
+						<tr>
+							<td>
+								<img src="media/projf/fig_schematic.jpg" alt="schematic" style="height: 25em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Segmentation</h2>
+			<p>
+				To identify individual objects in the scene, we simply pass each frame of the StreetView image sequence through a pretrained image model trained on panoptic segmentation. Here, we use <a href="https://huggingface.co/facebook/mask2former-swin-large-cityscapes-panoptic" class="texta">Mask2Former</a>, but other segmentation models can be readily used as well.
+				As shown in <b>Fig. 2</b>, the model is able to reliably segment out each object present in the image (in this case, the moving car), even as the object becomes more distant and is partially occluded in later frames.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 2a. Original.</th>
+						<th>Fig. 2b. Segmented.</th>
+						<tr>
+							<td>
+								<img src="media/projf/fig_streetview.jpg" alt="original" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/projf/fig_segmentation.jpg" alt="segmentation" style="height: 25em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Moving Object Identification</h2>
+			<p>
+				The key step of the pipeline is identifying which objects are moving. To do so, we leverage a key assumption that most points in the world are stationary and thus move coherently with a camera movement. Therefore, we can estimate the camera motion between two consecutive frames by estimating the fundamental matrix relating the two. We use a feature detector (<a href="https://ieeexplore.ieee.org/document/790410" class="texta">SIFT</a>) to identify keypoints in both frames, and use brute force pairwise matching to identify matching keypoints between the two frames.
+				Then, we estimate the fundamental matrix \(F\) using a RANSAC procedure that removes outliers, namely pairs of points \(p_1, p_2\) that do not satisfy the equation \(p_2^T F p_1 = 0\).
+				Indeed, we find that we are able to obtain a fundamental matrix consistent with most of the keypoints (<b>Fig. 3a</b>).
+				<br>
+				Given an estimated fundamental matrix, we evaluate the consistency of each segmented object with the inferred camera movement. In particular, we calculate the reprojection loss \(\frac{\|p_2^T F p_1\|}{\|F p_1\|_2}\) as the distance from \(p_2\) to the corresponding epipolar line \(F p_1\).
+				For each segmented object, we classify it as moving if the mean reprojection loss of all keypoints within the segmentation mask exceeds a threshold (<b>Fig. 3b</b>).
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 3a. Epipolar lines.</th>
+						<th>Fig. 3b. Moving objects.</th>
+						<tr>
+							<td>
+								<img src="media/projf/fig_epipolar.jpg" alt="epipolar" style="height: 25em;">
+							</td>
+							<td>
+								<img src="media/projf/fig_moving.jpg" alt="moving" style="height: 15em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Inpainting</h2>
+			<p>
+				Once moving objects are identified, we can simply remove them with their corresponding segmentation masks, and pass the resultant image to an image inpainting model.
+				Here, we use <a href="https://huggingface.co/stabilityai/stable-diffusion-2-inpainting" class="texta">Stable Diffusion</a>, but we note that our pipeline is general to any inpainting model.
+				Example results are shown in <b>Fig. 4</b>, where we see that moving cars and pedestrians have been removed from the scene and inpainted with a plausible natural background.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 4. Inpainted frames.</th>
+						<tr>
+							<td>
+								<img src="media/projf/fig_inpainted.jpg" alt="inpainted" style="height: 60em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Discussion</h2>
+			<p>
+				Our method benefits from both the versatility of modern computer vision models, as well as the robustness of classical computer vision algorithms. Panoptic segmentation models are able to precisely identify objects within the scene and diffusion models are able to generate visually compelling inpaintings from arbitrary masks, enhancing the overall quality of the output frames. At the same time, traditional SIFT keypoint detection, combined with fundamental matrix estimation and epipolar reprojection loss evaluation, enables reliable differentiation between static and moving elements that current machine learning models often struggle at.
+				Together, these methods enable us to perform StreetView cleaning with nearly no constraints as previous methods had: <b>no camera pose or depth information needed!</b>
+				<br>
+				Despite these promising results, the pipeline has some limitations. First, the accuracy of moving object identification relies heavily on the robustness of keypoint detection and matching algorithms. Real-world problems such as occlusion, different lighting conditions and camera parameters between frames, or lack of texture may degrade the quality of estimated fundamental matrices and, consequently, the classification of static and moving objects (<b>Fig. 5</b>). Future work could explore the integration of learned feature descriptors or deep learning-based motion estimation techniques to mitigate these issues.
+				<br>
+				<center>
+					<table class="borderedtable">
+						<th>Fig. 5. Limitations.</th>
+						<tr>
+							<td>
+								<img src="media/projf/fig_limitations.jpg" alt="limitations" style="height: 20em;">
+							</td>
+						</tr>
+					</table>
+				</center>
+			</p>
+		</div>
+		<div class="subcard">
+			<h2>Comment: Scene understanding</h2>
+			<p>
+				Scene understanding is perhaps the holy grail of computer vision.
+				A complete understanding of the scene should identify each object and describe its corresponding trajectory in the scene over time.
+				This project is but a toy attempt at a system with this grand capacity, but it is already personally inspiring to be able to quantify and manipulate individual objects in the scene.
+				Yet, an <i>elegant</i> formulation of scene understanding should perhaps not only perform the functions, but also be able to do so in a completely generalizable manner, even agnostic to individual object features.
+				This unification cetainly seems to be out of reach for current methods, but it is also, at least personally, certainly an aspiriation worth striving for.
+			</p>
+		</div>
+	</div>
+</body>
+
+<footer>
+	<p>Dasheng Bi, <span id="currentYear"></span></p>
+</footer>
+</html>
